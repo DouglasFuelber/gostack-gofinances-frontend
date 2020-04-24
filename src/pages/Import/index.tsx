@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-
-import filesize from 'filesize';
 
 import Header from '../../components/Header';
 import FileList from '../../components/FileList';
@@ -20,22 +17,39 @@ interface FileProps {
 
 const Import: React.FC = () => {
   const [uploadedFiles, setUploadedFiles] = useState<FileProps[]>([]);
-  const history = useHistory();
+  const [uploadError, setUploadError] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   async function handleUpload(): Promise<void> {
-    // const data = new FormData();
-
-    // TODO
-
     try {
-      // await api.post('/transactions/import', data);
+      uploadedFiles.forEach(async file => {
+        const data = new FormData();
+        data.append('file', file.file);
+
+        await api.post('/transactions/import', data);
+      });
+
+      setUploadedFiles([]);
+      setUploadSuccess(true);
     } catch (err) {
-      // console.log(err.response.error);
+      setUploadError(true);
+      console.log(err.response.error);
     }
   }
 
   function submitFile(files: File[]): void {
-    // TODO
+    setUploadError(false);
+    setUploadSuccess(false);
+
+    files.forEach(file => {
+      const newFile: FileProps = {
+        file,
+        name: file.name,
+        readableSize: file.size.toString(),
+      };
+
+      setUploadedFiles([...uploadedFiles, newFile]);
+    });
   }
 
   return (
@@ -47,6 +61,12 @@ const Import: React.FC = () => {
           <Upload onUpload={submitFile} />
           {!!uploadedFiles.length && <FileList files={uploadedFiles} />}
 
+          <p className="success">
+            {uploadSuccess && 'Arquivo(s) importado(s) com sucesso'}
+          </p>
+          <p className="error">
+            {uploadError && 'Erro ao importar arquivo(s)'}
+          </p>
           <Footer>
             <p>
               <img src={alert} alt="Alert" />

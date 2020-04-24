@@ -21,6 +21,16 @@ export const ImportFileContainer = styled.section`
   margin-top: 40px;
   border-radius: 5px;
   padding: 64px;
+
+  p {
+    &.error {
+      color: #e83f5b;
+    }
+
+    &.success {
+      color: #12a454;
+    }
+  }
 `;
 
 export const Footer = styled.section`
